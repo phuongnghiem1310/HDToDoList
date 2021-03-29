@@ -10,6 +10,7 @@ import { Container } from "../StyledComponent/Containers/Container";
 import * as ActionType from "./../redux/reducers/ToDoList/constant";
 import "./style.css";
 import { useForm, Controller } from "react-hook-form";
+import Pagination from "rc-pagination";
 
 import { useAuthContext } from "./../App";
 import { Redirect } from "react-router";
@@ -25,6 +26,7 @@ const ToDoList: React.FC = (props: any) => {
   const { state, dispatchAuth } = useAuthContext();
   const [task, setTask] = useState();
   let [taskName, setTaskName] = useState("");
+  let [listPagination, setListPagination] = useState<object[]>([]);
 
   useEffect(() => {
     dispatch({
@@ -39,6 +41,15 @@ const ToDoList: React.FC = (props: any) => {
     }
   }, [props.taskEdit]);
 
+  useEffect(() => {
+    const { taskList } = props;
+    let newList = [];
+    for (let i = 0; i < 4; i++) {
+      newList.push(taskList[i]);
+    }
+    setListPagination(newList);
+  }, [props.taskList]);
+
   const onSubmit = (data: IFormData) => {
     if (!props.taskEdit) {
       dispatch({
@@ -49,8 +60,8 @@ const ToDoList: React.FC = (props: any) => {
     } else {
       let newTask = {
         id: props.taskEdit.id,
-        taskName: taskName
-      }
+        taskName: taskName,
+      };
       dispatch({
         type: ActionType.EDIT_TASK_API,
         data: newTask,
@@ -78,12 +89,11 @@ const ToDoList: React.FC = (props: any) => {
     let { taskEdit } = props;
     let { name, value } = e.target;
     if (taskEdit) {
-      
       let newTaskEdit = {
         id: taskEdit.id,
         taskName: value,
       };
-      
+
       dispatch({
         type: ActionType.SET_EDIT_TASK,
         task: newTaskEdit,
@@ -95,12 +105,40 @@ const ToDoList: React.FC = (props: any) => {
 
   const deleteTaskName = () => {
     setTaskName("");
-  }
+  };
 
   const renderTaskToDo = () => {
-    let { taskList } = props;
-    if (taskList && taskList.length > 0) {
-      return taskList.map((task: any, index: number) => {
+    // let { taskList } = props;
+    // if (taskList && taskList.length > 0) {
+    //   return taskList.map((task: any, index: number) => {
+    //     return (
+    //       <Tr key={index}>
+    //         <Th>{task.taskName}</Th>
+    //         <Th className="text-right">
+    //           <Button
+    //             onClick={() => {
+    //               handleOnEdit(task);
+    //             }}
+    //           >
+    //             <i className="fa fa-edit"></i>
+    //           </Button>
+    //           <Button
+    //             data-toggle="modal"
+    //             data-target="#modalConfirmDelete"
+    //             onClick={() => {
+    //               handleOnCorfirmDelete(task);
+    //             }}
+    //           >
+    //             <i className="fa fa-trash"></i>
+    //           </Button>
+    //         </Th>
+    //       </Tr>
+    //     );
+    //   });
+    // }
+
+    if (listPagination && listPagination.length > 0) {
+      return listPagination.map((task: any, index: number) => {
         return (
           <Tr key={index}>
             <Th>{task.taskName}</Th>
@@ -128,6 +166,29 @@ const ToDoList: React.FC = (props: any) => {
     }
   };
 
+  const handleChangePagination = (e: any) => {
+    const { taskList } = props;
+    if (taskList && taskList.length > 0) {
+      let lastIndex = e * 4;
+      let startIndex = lastIndex - 4;
+      let newList: Array<any> = [];
+
+      if (lastIndex > taskList.length) {
+        for (let i = startIndex; i < taskList.length; i++) {
+          let newTask: any = taskList[i];
+          newList.push(newTask);
+        }
+      } else {
+        for (let i = startIndex; i < lastIndex; i++) {
+          let newTask: any = taskList[i];
+          newList.push(newTask);
+        }
+      }
+
+      setListPagination(newList);
+    }
+  };
+
   if (!state.isAuthenticated) {
     return <Redirect to="/" />;
   }
@@ -137,10 +198,10 @@ const ToDoList: React.FC = (props: any) => {
   }
 
   const { taskEdit } = props;
-
   return (
     <>
       <Container className="w-50">
+        {/* <button className="btn btn-success" onClick={handleTaskCase}>Test Case</button> */}
         <button className="btn btn-danger btnLogout" onClick={handleLogout}>
           Logout
         </button>
@@ -193,8 +254,23 @@ const ToDoList: React.FC = (props: any) => {
         <Table className="table">
           <Thead>{renderTaskToDo()}</Thead>
         </Table>
+        {props.taskList.length > 0 ? (
+          <Pagination
+            className="ant-pagination"
+            defaultCurrent={1}
+            pageSize={4}
+            total={props.taskList.length}
+            onChange={handleChangePagination}
+          />
+        ) : (
+          ""
+        )}
       </Container>
-      {task ? <ModalDelete deleteTaskName={()=>deleteTaskName()} task={task} /> : ""}
+      {task ? (
+        <ModalDelete deleteTaskName={() => deleteTaskName()} task={task} />
+      ) : (
+        ""
+      )}
     </>
   );
 };

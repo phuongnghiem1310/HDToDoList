@@ -1,0 +1,59 @@
+.ant-pagination {
+  display: flex !important;
+  justify-content: space-between;
+  margin-top: 50px;
+  padding-left: 50%;
+  li {
+    list-style: none;
+    cursor: pointer;
+    &:focus {
+      outline: unset;
+    }
+  }
+
+  li.rc-pagination-prev {
+    button {
+      background-color: #343a40;
+      color: #fff;
+      border: unset;
+      &::after {
+        content: "<";
+        display: block;
+      }
+    }
+  }
+
+  li.rc-pagination-next {
+    button {
+      background-color: #343a40;
+      color: #fff;
+      border: unset;
+      &::after {
+        content: ">";
+        display: block;
+      }
+    }
+  }
+
+  li.rc-pagination-item-active {
+    border: 1px solid #fff;
+    padding: 0 10px;
+    border-radius: 10%;
+    a {
+      font-weight: 700;
+    }
+  }
+
+  li.rc-pagination-jump-prev,
+  li.rc-pagination-jump-next {
+    button {
+      background-color: #343a40;
+      color: #fff;
+      border: unset;
+      &::after {
+        content: "...";
+        display: block;
+      }
+    }
+  }
+}
