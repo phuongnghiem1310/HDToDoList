@@ -103,6 +103,12 @@ function* editTaskApi(action: any) {
       return ToDoListService.editTaskApi(task);
     });
     if (status === 200) {
+
+      yield put({
+        type: ActionType.SET_EDIT_TASK,
+        task: null
+      })
+
       yield put({
         type: ActionType.GET_TASK_API,
       });
